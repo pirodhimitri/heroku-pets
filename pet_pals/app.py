@@ -1,4 +1,3 @@
-# import necessary libraries
 import os
 from flask import (
     Flask,
@@ -7,30 +6,29 @@ from flask import (
     request,
     redirect)
 
-#################################################
-# Flask Setup
-#################################################
 app = Flask(__name__)
 
-#################################################
-# Database Setup
-#################################################
-
 from flask_sqlalchemy import SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "sqlite:///db.sqlite"
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '')
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db.sqlite"
 db = SQLAlchemy(app)
 
-from .models import Pet
+class Pet(db.Model):
+    __tablename__ = 'pets'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    lat = db.Column(db.Float)
+    lon = db.Column(db.Float)
+
+    def __repr__(self):
+        return '<Pet %r>' % (self.name)
 
 
-# create route that renders index.html template
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# Query the database and send the jsonified results
 @app.route("/send", methods=["GET", "POST"])
 def send():
     if request.method == "POST":
